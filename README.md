@@ -74,11 +74,76 @@ Custom connectors in Claude on the web and desktop, and ChatGPT, accept only a U
 
 ### Fields
 
-The fields of each capability are documented on the English pages linked below.
+These are the fields that the 3 capabilities returned in our test. Each meaning is the first sentence of the field's entry in the API documentation. The link under each table has the full text.
 
-- `search`: <https://everyinfra.com/en/kuaishou-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-- `video`: <https://everyinfra.com/en/kuaishou-api/video?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-- `comments`: <https://everyinfra.com/en/kuaishou-api/comments?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+#### `search` (keyword search)
+
+| Field | Meaning |
+|---|---|
+| `id` | The record's unique ID on the platform. |
+| `url` | Link to the record on the platform. |
+| `text` | Body text with HTML removed, returned in full and never cut short (on a few platforms the list results themselves carry only an excerpt; the platform's field notes say so). |
+| `duration_ms` | Duration in **milliseconds**. |
+| `view_count` | Views of the topic (hot_boards). |
+| `like_count` | Likes. null means the platform or this capability does not disclose it; it is not 0. |
+| `comment_count` | Comments. null means not disclosed, not 0. |
+| `share_count` | Shares. null means not disclosed, not 0. |
+| `posted_at` | Publish time in ISO 8601, UTC (for example 2026-08-07T12:34:56+00:00). |
+| `author_id` | Author's unique ID on the platform. |
+| `author_name` | Author's display name. |
+| `author_verified` | Whether the author is verified; on comments, the commenter. |
+| `cover_url` | Cover image; on trending, the picture for the hot-list entry. |
+| `avatar_url` | Avatar image link. |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+| `author_kwai_id` | The author's Kuaishou handle (a user-chosen ID). |
+
+All parameters and fields: <https://everyinfra.com/en/kuaishou-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+#### `video` (video details)
+
+| Field | Meaning |
+|---|---|
+| `id` | The record's unique ID on the platform. |
+| `url` | Link to the record on the platform. |
+| `text` | Body text with HTML removed, returned in full and never cut short (on a few platforms the list results themselves carry only an excerpt; the platform's field notes say so). |
+| `duration_ms` | Duration in **milliseconds**. |
+| `view_count` | Views of the topic (hot_boards). |
+| `like_count` | Likes. null means the platform or this capability does not disclose it; it is not 0. |
+| `comment_count` | Comments. null means not disclosed, not 0. |
+| `share_count` | Shares. null means not disclosed, not 0. |
+| `collect_count` | Saves or favorites. null means not disclosed, not 0. |
+| `posted_at` | Publish time in ISO 8601, UTC (for example 2026-08-07T12:34:56+00:00). |
+| `author_id` | Author's unique ID on the platform. |
+| `author_name` | Author's display name. |
+| `author_kwai_id` | The author's Kuaishou handle (a user-chosen ID). |
+| `author_url` | Link to the author's profile on the platform. |
+| `author_verified` | Whether the author is verified; on comments, the commenter. |
+| `author_gender` | Author gender on video and comments: M or F. |
+| `cover_url` | Cover image; on trending, the picture for the hot-list entry. |
+| `avatar_url` | Avatar image link. |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+
+All parameters and fields: <https://everyinfra.com/en/kuaishou-api/video?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+#### `comments` (comments)
+
+| Field | Meaning |
+|---|---|
+| `next_page_token` | Page token (comments, user_search): pass it back unchanged as page_token for the next page. |
+| `id` | The record's unique ID on the platform. |
+| `text` | Body text with HTML removed, returned in full and never cut short (on a few platforms the list results themselves carry only an excerpt; the platform's field notes say so). |
+| `like_count` | Likes. null means the platform or this capability does not disclose it; it is not 0. |
+| `posted_at` | Publish time in ISO 8601, UTC (for example 2026-08-07T12:34:56+00:00). |
+| `author_id` | Author's unique ID on the platform. |
+| `author_name` | Author's display name. |
+| `author_avatar_url` | The commenter's avatar link (comments). |
+| `author_gender` | Author gender on video and comments: M or F. |
+| `author_verified` | Whether the author is verified; on comments, the commenter. |
+| `ip_location` | The commenter's IP region as Kuaishou displays it, usually a province (comments). |
+| `liked_by_author` | Whether the video's author liked this comment (comments). |
+| `platform` | Source platform identifier, the same as platform in the request (for example xiaohongshu, tiktok). |
+
+All parameters and fields: <https://everyinfra.com/en/kuaishou-api/comments?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
 
 ### FAQ
 
