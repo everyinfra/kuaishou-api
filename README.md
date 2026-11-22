@@ -1,6 +1,131 @@
-# 快手 API（Kuaishou API）
+# Kuaishou API（快手 API）
 
-[中文](#中文) · [English](#english)
+[English](#english) · [中文](#中文)
+
+## English
+
+This repo reads public Kuaishou data with Python or curl. You can search videos by keyword and read video details and comments. You need one EveryInfra API key. You do not need a Kuaishou account or cookie. The same API also works as an MCP tool in Claude and Cursor. Billing is per call: these 3 capabilities cost $0.81 to $8.00 per 1,000 calls. Failed calls and empty results are not charged. The EveryInfra Kuaishou API has 12 capabilities, all listed on the platform page: <https://everyinfra.com/en/kuaishou-api?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+### Quick start
+
+```bash
+git clone https://github.com/everyinfra/kuaishou-api.git
+cd kuaishou-api
+pip install -r requirements.txt
+export EVERYINFRA_API_KEY=<your API key>
+python main.py search 露营装备 --out videos.csv
+python main.py video "<video url>" --out video.json
+python main.py comments "<video url>" --out comments.csv
+```
+
+- For `video` and `comments`, take the video link from the `url` field of a `search` result, for example https://www.kuaishou.com/short-video/<id>.
+- Without `--out`, the command prints the first 3 rows as JSON. With `--out`, it saves a .csv or .json file. The CSV has a BOM, so Excel opens it without garbled text.
+- Register at everyinfra.com, then create the API key in the console. Steps: <https://everyinfra.com/en/docs?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api#quickstart>
+
+### curl
+
+```bash
+curl -X POST https://api.everyinfra.com/api/v1/social \
+  -H "Authorization: Bearer $EVERYINFRA_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"platform":"kuaishou","action":"search","params":{"keyword":"露营装备"}}'
+```
+
+All capabilities use the same URL. Change `action` and `params` to call another one. Examples for `video` and `comments` are in [examples/curl.sh](examples/curl.sh).
+
+### Claude and Cursor (MCP)
+
+The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. EveryInfra runs the server, so you install no local program.
+
+Claude Code:
+
+```bash
+claude mcp add --transport http everyinfra https://api.everyinfra.com/mcp --header "Authorization: Bearer <API Key>"
+```
+
+Cursor and other clients that read `mcp.json` ([examples/mcp.json](examples/mcp.json)):
+
+```json
+{
+  "mcpServers": {
+    "everyinfra": {
+      "url": "https://api.everyinfra.com/mcp",
+      "headers": {
+        "Authorization": "Bearer <API Key>"
+      }
+    }
+  }
+}
+```
+
+Custom connectors in Claude on the web and desktop, and ChatGPT, accept only a URL. Enter <https://api.everyinfra.com/mcp/all>, sign in to EveryInfra when asked, and allow access. You do not need to enter a key. Full steps: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+### Price
+
+| `action` | Per 1,000 calls |
+|---|---|
+| `search` | $8.00 |
+| `video` | $0.81 |
+| `comments` | $1.60 |
+
+- Billing is per call, about $0.00081 to $0.008 each. Failed calls, empty results, parameter errors, and authentication failures are not charged.
+- A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+- Prices for the other 9 Kuaishou capabilities are on the platform page: <https://everyinfra.com/en/kuaishou-api?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+### Fields
+
+The fields of each capability are documented on the English pages linked below.
+
+- `search`: <https://everyinfra.com/en/kuaishou-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+- `video`: <https://everyinfra.com/en/kuaishou-api/video?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+- `comments`: <https://everyinfra.com/en/kuaishou-api/comments?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+### FAQ
+
+**Do I need a Kuaishou account or cookie to call the API?**
+
+No. Send the `Authorization: Bearer` header with your API key. The request body holds `platform`, `action`, and the capability parameters. You do not scan a QR code, keep a login session, or open a browser.
+
+**How much does it cost? Are failed calls charged? Is there a free allowance?**
+
+Billing is per call, from $0.56 per 1,000 calls. Failed calls, empty results, parameter errors, and authentication failures are not charged. A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+**Can I connect the Kuaishou API to Claude or Cursor?**
+
+Yes. The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. You install no local program. Setup for Claude, Cursor, ChatGPT, and Claude Code: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>.
+
+**What legal points apply when I use Kuaishou data?**
+
+The EveryInfra Terms of Service require you to make sure your use of the data follows applicable law and the terms of the relevant platform. Do not use the data for anything illegal or anything that violates privacy or intellectual property rights. Do not use bulk scraping for harassment, fraud, or other abuse. When you use personal information such as nicknames and avatars, keep only the fields your business needs.
+
+**Which Kuaishou data can I get?**
+
+The EveryInfra Kuaishou API has 12 capabilities:
+
+- keyword search
+- user content
+- trending list
+- video details
+- comments
+- hot boards
+- live rank
+- shopping rank
+- brand rank
+- hot person board
+- user live
+- account search
+
+Parameters and return fields for each capability are on the platform page: <https://everyinfra.com/en/kuaishou-api?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
+
+### Tested
+
+Before release, we ran the 3 commands in Quick start against the live API with this repo's code.
+
+| Command | Time (Singapore, UTC+8) | Rows | Charged |
+|---|---|---|---|
+| `python main.py search 露营装备 --out videos.csv` | 2026-11-21 09:27 | 20 | $0.008000 |
+| `python main.py video "<video url>" --out video.json` | 2026-11-21 09:28 | 1 | $0.000806 |
+| `python main.py comments "<video url>" --out comments.csv` | 2026-11-21 09:43 | 30 | $0.001597 |
 
 ## 中文
 
@@ -191,131 +316,6 @@ EveryInfra 服务条款要求你自行确保数据用法符合适用法律和相
   "posted_at": "2026-04-05T12:26:26.439000+00:00"
 }
 ```
-
-## English
-
-This repo reads public Kuaishou data with Python or curl. You can search videos by keyword and read video details and comments. You need one EveryInfra API key. You do not need a Kuaishou account or cookie. The same API also works as an MCP tool in Claude and Cursor. Billing is per call: these 3 capabilities cost $0.81 to $8.00 per 1,000 calls. Failed calls and empty results are not charged. The EveryInfra Kuaishou API has 12 capabilities, all listed on the platform page: <https://everyinfra.com/en/kuaishou-api?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-
-### Quick start
-
-```bash
-git clone https://github.com/everyinfra/kuaishou-api.git
-cd kuaishou-api
-pip install -r requirements.txt
-export EVERYINFRA_API_KEY=<your API key>
-python main.py search 露营装备 --out videos.csv
-python main.py video "<video url>" --out video.json
-python main.py comments "<video url>" --out comments.csv
-```
-
-- For `video` and `comments`, take the video link from the `url` field of a `search` result, for example https://www.kuaishou.com/short-video/<id>.
-- Without `--out`, the command prints the first 3 rows as JSON. With `--out`, it saves a .csv or .json file. The CSV has a BOM, so Excel opens it without garbled text.
-- Register at everyinfra.com, then create the API key in the console. Steps: <https://everyinfra.com/en/docs?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api#quickstart>
-
-### curl
-
-```bash
-curl -X POST https://api.everyinfra.com/api/v1/social \
-  -H "Authorization: Bearer $EVERYINFRA_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"platform":"kuaishou","action":"search","params":{"keyword":"露营装备"}}'
-```
-
-All capabilities use the same URL. Change `action` and `params` to call another one. Examples for `video` and `comments` are in [examples/curl.sh](examples/curl.sh).
-
-### Claude and Cursor (MCP)
-
-The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. EveryInfra runs the server, so you install no local program.
-
-Claude Code:
-
-```bash
-claude mcp add --transport http everyinfra https://api.everyinfra.com/mcp --header "Authorization: Bearer <API Key>"
-```
-
-Cursor and other clients that read `mcp.json` ([examples/mcp.json](examples/mcp.json)):
-
-```json
-{
-  "mcpServers": {
-    "everyinfra": {
-      "url": "https://api.everyinfra.com/mcp",
-      "headers": {
-        "Authorization": "Bearer <API Key>"
-      }
-    }
-  }
-}
-```
-
-Custom connectors in Claude on the web and desktop, and ChatGPT, accept only a URL. Enter <https://api.everyinfra.com/mcp/all>, sign in to EveryInfra when asked, and allow access. You do not need to enter a key. Full steps: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-
-### Price
-
-| `action` | Per 1,000 calls |
-|---|---|
-| `search` | $8.00 |
-| `video` | $0.81 |
-| `comments` | $1.60 |
-
-- Billing is per call, about $0.00081 to $0.008 each. Failed calls, empty results, parameter errors, and authentication failures are not charged.
-- A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-- Prices for the other 9 Kuaishou capabilities are on the platform page: <https://everyinfra.com/en/kuaishou-api?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-
-### Fields
-
-The fields of each capability are documented on the English pages linked below.
-
-- `search`: <https://everyinfra.com/en/kuaishou-api/search?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-- `video`: <https://everyinfra.com/en/kuaishou-api/video?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-- `comments`: <https://everyinfra.com/en/kuaishou-api/comments?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-
-### FAQ
-
-**Do I need a Kuaishou account or cookie to call the API?**
-
-No. Send the `Authorization: Bearer` header with your API key. The request body holds `platform`, `action`, and the capability parameters. You do not scan a QR code, keep a login session, or open a browser.
-
-**How much does it cost? Are failed calls charged? Is there a free allowance?**
-
-Billing is per call, from $0.56 per 1,000 calls. Failed calls, empty results, parameter errors, and authentication failures are not charged. A new account gets a $1 trial allowance, valid for 24 hours. No credit card is needed. How to claim it: <https://everyinfra.com/en/pricing?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-
-**Can I connect the Kuaishou API to Claude or Cursor?**
-
-Yes. The remote MCP URL is <https://api.everyinfra.com/mcp>. Add the `Authorization: Bearer` header with your API key. You install no local program. Setup for Claude, Cursor, ChatGPT, and Claude Code: <https://everyinfra.com/en/mcp-server?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>.
-
-**What legal points apply when I use Kuaishou data?**
-
-The EveryInfra Terms of Service require you to make sure your use of the data follows applicable law and the terms of the relevant platform. Do not use the data for anything illegal or anything that violates privacy or intellectual property rights. Do not use bulk scraping for harassment, fraud, or other abuse. When you use personal information such as nicknames and avatars, keep only the fields your business needs.
-
-**Which Kuaishou data can I get?**
-
-The EveryInfra Kuaishou API has 12 capabilities:
-
-- keyword search
-- user content
-- trending list
-- video details
-- comments
-- hot boards
-- live rank
-- shopping rank
-- brand rank
-- hot person board
-- user live
-- account search
-
-Parameters and return fields for each capability are on the platform page: <https://everyinfra.com/en/kuaishou-api?utm_source=github&utm_medium=example_repo&utm_campaign=kuaishou-api>
-
-### Tested
-
-Before release, we ran the 3 commands in Quick start against the live API with this repo's code.
-
-| Command | Time (Singapore, UTC+8) | Rows | Charged |
-|---|---|---|---|
-| `python main.py search 露营装备 --out videos.csv` | 2026-11-21 09:27 | 20 | $0.008000 |
-| `python main.py video "<video url>" --out video.json` | 2026-11-21 09:28 | 1 | $0.000806 |
-| `python main.py comments "<video url>" --out comments.csv` | 2026-11-21 09:43 | 30 | $0.001597 |
 
 ## License
 
